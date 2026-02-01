@@ -6,24 +6,35 @@
     <title>新人收入目标测算看板</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #e60012; --gray: #f4f4f4; --border: #ddd; --gold: #d4a017; --tip-bg: #fffbe6; }
+        :root { 
+            --primary: #e60012; 
+            --gray: #f4f4f4; 
+            --border: #ddd; 
+            --gold: #d4a017; 
+            --tip-bg: #fffbe6; 
+            --text-sm: 12px;
+            --text-md: 13px;
+            --text-lg: 14px;
+        }
         body { 
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif; 
             background: #fafafa; 
             margin: 0; 
             padding: 12px; 
             overflow-x: hidden;
+            color: #333;
         }
-        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        * { box-sizing: border-box; }
 
         .container { 
-            max-width: 1400px; 
+            max-width: 100%; 
             margin: 0 auto; 
             background: #fff; 
-            padding: 16px; 
+            padding: 12px; 
             border-radius: 8px; 
             box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
             position: relative; 
+            overflow: hidden;
         }
         
         /* 水印层 */
@@ -49,10 +60,10 @@
             position: relative; 
             z-index: 20; 
             flex-wrap: wrap; 
-            gap: 10px; 
+            gap: 8px; 
         }
-        .main-title { font-size: 20px; font-weight: bold; color: #333; margin: 0; }
-        .sub-title { font-size: 12px; color: #999; }
+        .main-title { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
+        .sub-title { font-size: 10px; color: #999; }
 
         .top-nav-container { 
             margin-bottom: 16px; 
@@ -65,11 +76,11 @@
         .btn-link { 
             color: #856404; 
             background: var(--tip-bg); 
-            border: 1px solid #ffe58f; 
+            border: 1px solid #ffe58着; 
             padding: 6px 10px; 
             border-radius: 4px; 
             cursor: pointer; 
-            font-size: 12px; 
+            font-size: 11px; 
             font-weight: bold; 
             text-decoration: none; 
             display: inline-flex; 
@@ -91,61 +102,58 @@
             background: var(--tip-bg); 
             border: 1px solid #ffe58f; 
             border-top: none; 
-            padding: 16px; 
+            padding: 12px; 
             border-radius: 0 0 4px 4px; 
             margin-top: -8px; 
             margin-bottom: 16px; 
             position: relative; 
             z-index: 19; 
-            font-size: 12px; 
+            font-size: 11px; 
             line-height: 1.6;
         }
         .rule-columns { 
             display: flex; 
-            gap: 20px; 
+            gap: 16px; 
             flex-wrap: wrap; 
         }
         .rule-col { 
             flex: 1; 
-            min-width: 240px; 
+            min-width: 220px; 
             color: #856404; 
         }
 
         .input-panel { 
             display: flex; 
-            flex-wrap: wrap; 
+            flex-direction: column; 
             gap: 12px; 
             background: var(--gray); 
             padding: 16px; 
             border-radius: 6px; 
-            margin-bottom: 20px; 
+            margin-bottom: 16px; 
             position: relative; 
             z-index: 20; 
-            align-items: flex-end; 
         }
         @media (max-width: 768px) {
-            .input-panel { flex-direction: column; align-items: stretch; }
-            .input-group { width: 100%; }
+            .input-panel { padding: 12px; }
         }
         .input-group { 
             display: flex; 
             flex-direction: column; 
             gap: 6px; 
             flex: 1; 
-            min-width: 140px; 
         }
         .input-group label { 
-            font-size: 13px; 
+            font-size: var(--text-sm); 
             font-weight: bold; 
             color: #444; 
         }
         input, select { 
-            height: 38px; 
+            height: 36px; 
             padding: 0 10px; 
             border: 1px solid var(--border); 
             border-radius: 4px; 
             background: #fff; 
-            font-size: 13px; 
+            font-size: var(--text-sm); 
             width: 100%; 
             outline: none; 
         }
@@ -154,13 +162,14 @@
             background: var(--primary); 
             color: #fff; 
             border: none; 
-            padding: 0 20px; 
+            padding: 10px; 
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold; 
-            height: 38px; 
+            font-size: var(--text-sm); 
             transition: 0.3s; 
             white-space: nowrap;
+            margin-top: 8px;
         }
         .btn-calc:hover { background: #c0000f; }
 
@@ -171,7 +180,7 @@
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 13px; 
+            font-size: var(--text-sm); 
             white-space: nowrap;
         }
 
@@ -186,15 +195,13 @@
             background: #fff;
             margin-bottom: 12px;
             scrollbar-width: thin;
-            /* 确保滚动条始终可见（部分安卓） */
-            -ms-overflow-style: -ms-autohiding-scrollbar;
         }
 
         /* 滑动提示条 —— 始终显示在顶部 */
         .scroll-hint {
             background: #f0f0f0;
             color: #888;
-            font-size: 12px;
+            font-size: 10px;
             padding: 4px 8px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -206,24 +213,24 @@
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0; 
-            min-width: 800px; /* 确保最小宽度 */
+            min-width: 600px; /* 保证最小宽度 */
         }
         .compare-table th, .compare-table td { 
             border-right: 1px solid var(--border); 
             border-bottom: 1px solid var(--border); 
-            padding: 10px 6px; 
+            padding: 8px 6px; 
             text-align: center; 
-            font-size: 12px; 
+            font-size: var(--text-sm); 
             white-space: nowrap; 
             line-height: 1.3;
         }
         .label-col { 
-            width: 140px; 
-            min-width: 140px !important; 
+            width: 120px; 
+            min-width: 120px !important; 
             background: #f9f9f9 !important; 
             text-align: left !important; 
             font-weight: bold; 
-            /* 移动端不 sticky，避免错位 */
+            font-size: var(--text-sm);
         }
         @media (min-width: 769px) {
             .label-col {
@@ -238,7 +245,7 @@
             color: var(--primary); 
             border-bottom: 2px solid var(--primary); 
             font-weight: bold;
-            padding: 8px 6px;
+            padding: 6px 6px;
         }
         .cat-row { 
             background: #fff1f0 !important; 
@@ -246,7 +253,7 @@
             color: var(--primary); 
         }
         .total-val { 
-            font-size: 16px; 
+            font-size: 14px; 
             font-weight: 800; 
             color: var(--primary); 
         }
@@ -255,7 +262,7 @@
         }
         .crown-icon { 
             display: none; 
-            font-size: 16px; 
+            font-size: 14px; 
             margin-bottom: 2px; 
         }
         .is-winner .crown-icon { 
@@ -273,6 +280,18 @@
             width: fit-content; 
             margin: 4px auto 0 auto; 
             line-height: 1.2;
+        }
+
+        /* 增员输入容器 —— 垂直堆叠 */
+        #referralInputs { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            padding: 0; 
+        }
+        #referralInputs .input-group { 
+            flex: 1; 
+            width: 100%; 
         }
 
         /* 打印样式 */
@@ -357,7 +376,7 @@
                 <option value="是">是</option>
             </select>
         </div>
-        <!-- 增员输入容器 -->
+        <!-- 增员输入容器 —— 垂直堆叠 -->
         <div id="referralInputs" style="display: none;">
             <div class="input-group">
                 <label>被推荐新人入司月数</label>
@@ -458,7 +477,7 @@
         return { cash: t*(1-d), defer: t*d };
     }
 
-    // ✅ 修正后的增员奖计算函数（已验证 FYC=2999 正确）
+    // ✅ 增员奖计算函数（已验证 FYC=2999 正确）
     function calculateReferralBonus(referralFyc, months, continuation = '80%以上') {
         let c1 = 0;
 
@@ -531,7 +550,7 @@
             hasReferral
         });
 
-        // 添加表头：换行 + 缩小字体
+        // 添加表头
         const th = document.createElement('th');
         th.id = id + '-h';
         th.style.fontSize = '11px';
