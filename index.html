@@ -2,43 +2,123 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>新人收入目标测算看板</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #e60012; --gray: #f4f4f4; --border: #ddd; --gold: #d4a017; --tip-bg: #fffbe6; }
-        body { font-family: "PingFang SC", "Microsoft YaHei"; background: #fafafa; margin: 0; padding: 12px; }
+        body { 
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif; 
+            background: #fafafa; 
+            margin: 0; 
+            padding: 12px; 
+            overflow-x: hidden;
+        }
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: #fff; 
+            padding: 16px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
+            position: relative; 
+        }
         
         /* 水印层 */
-        .watermark-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.18; background-repeat: repeat; }
+        .watermark-overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 10; 
+            opacity: 0.18; 
+            background-repeat: repeat; 
+        }
 
-        .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 20; flex-wrap: wrap; gap: 10px; }
-        .main-title { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
-        .sub-title { font-size: 13px; color: #999; }
+        .header-area { 
+            border-bottom: 2px solid var(--primary); 
+            margin-bottom: 12px; 
+            padding-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            position: relative; 
+            z-index: 20; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+        .main-title { font-size: 20px; font-weight: bold; color: #333; margin: 0; }
+        .sub-title { font-size: 12px; color: #999; }
 
-        /* 顶部按钮组 */
-        .top-nav-container { margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 20; }
-        .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; transition: 0.2s; }
-        .btn-link:hover { background: #fff1b8; border-color: #ffd666; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .rule-btn::after { content: ' ▼'; font-size: 10px; margin-left: 6px; }
+        .top-nav-container { 
+            margin-bottom: 16px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+            position: relative; 
+            z-index: 20; 
+        }
+        .btn-link { 
+            color: #856404; 
+            background: var(--tip-bg); 
+            border: 1px solid #ffe58f; 
+            padding: 6px 10px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: bold; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            transition: 0.2s; 
+            white-space: nowrap;
+        }
+        .btn-link:hover { 
+            background: #fff1b8; 
+            border-color: #ffd666; 
+            transform: translateY(-1px); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        .rule-btn::after { content: ' ▼'; font-size: 10px; margin-left: 4px; }
         .rule-btn.active::after { content: ' ▲'; }
         
-        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 18px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 18px; position: relative; z-index: 19; }
-        .rule-columns { display: flex; gap: 24px; flex-wrap: wrap; }
-        .rule-col { flex: 1; min-width: 280px; font-size: 13px; color: #856404; line-height: 1.7; }
+        .rule-body { 
+            display: none; 
+            background: var(--tip-bg); 
+            border: 1px solid #ffe58f; 
+            border-top: none; 
+            padding: 16px; 
+            border-radius: 0 0 4px 4px; 
+            margin-top: -8px; 
+            margin-bottom: 16px; 
+            position: relative; 
+            z-index: 19; 
+            font-size: 12px; 
+            line-height: 1.6;
+        }
+        .rule-columns { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+        }
+        .rule-col { 
+            flex: 1; 
+            min-width: 240px; 
+            color: #856404; 
+        }
 
-        /* 输入面板：移动端单列 */
         .input-panel { 
             display: flex; 
             flex-wrap: wrap; 
-            gap: 16px; 
+            gap: 12px; 
             background: var(--gray); 
-            padding: 20px; 
+            padding: 16px; 
             border-radius: 6px; 
-            margin-bottom: 24px; 
+            margin-bottom: 20px; 
             position: relative; 
             z-index: 20; 
             align-items: flex-end; 
@@ -47,96 +127,162 @@
             .input-panel { flex-direction: column; align-items: stretch; }
             .input-group { width: 100%; }
         }
-        .input-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 160px; }
-        .input-group label { font-size: 14px; font-weight: bold; color: #444; }
-        input, select { height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 4px; background: #fff; font-size: 14px; width: 100%; outline: none; }
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            flex: 1; 
+            min-width: 140px; 
+        }
+        .input-group label { 
+            font-size: 13px; 
+            font-weight: bold; 
+            color: #444; 
+        }
+        input, select { 
+            height: 38px; 
+            padding: 0 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 4px; 
+            background: #fff; 
+            font-size: 13px; 
+            width: 100%; 
+            outline: none; 
+        }
 
-        .btn-calc { background: var(--primary); color: #fff; border: none; padding: 0 22px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 40px; transition: 0.3s; }
+        .btn-calc { 
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            padding: 0 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            height: 38px; 
+            transition: 0.3s; 
+            white-space: nowrap;
+        }
         .btn-calc:hover { background: #c0000f; }
 
-        .btn-action { color: #fff; border: none; padding: 9px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .btn-action { 
+            color: #fff; 
+            border: none; 
+            padding: 8px 14px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 13px; 
+            white-space: nowrap;
+        }
 
-        /* 表格区 */
+        /* 表格区 —— 重点优化移动端 */
         .table-wrapper { 
             overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
             border: 1px solid var(--border); 
             border-radius: 4px; 
             position: relative; 
             z-index: 15; 
             background: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             scrollbar-width: thin;
-        }
-        @media (min-width: 769px) {
-            .table-wrapper::before {
-                content: "← 左右滑动查看全部方案 →";
-                position: sticky;
-                left: 0;
-                background: #f9f9f9;
-                color: #999;
-                font-size: 12px;
-                padding: 4px 8px;
-                z-index: 4;
-                pointer-events: none;
-            }
+            /* 确保滚动条始终可见（部分安卓） */
+            -ms-overflow-style: -ms-autohiding-scrollbar;
         }
 
-        .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
+        /* 滑动提示条 —— 始终显示在顶部 */
+        .scroll-hint {
+            background: #f0f0f0;
+            color: #888;
+            font-size: 12px;
+            padding: 4px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .compare-table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0; 
+            min-width: 800px; /* 确保最小宽度 */
+        }
         .compare-table th, .compare-table td { 
             border-right: 1px solid var(--border); 
             border-bottom: 1px solid var(--border); 
-            padding: 12px 8px; 
+            padding: 10px 6px; 
             text-align: center; 
-            font-size: 13px; 
+            font-size: 12px; 
             white-space: nowrap; 
+            line-height: 1.3;
         }
         .label-col { 
-            width: 160px; 
-            min-width: 160px !important; 
+            width: 140px; 
+            min-width: 140px !important; 
             background: #f9f9f9 !important; 
             text-align: left !important; 
             font-weight: bold; 
-            position: -webkit-sticky; 
-            position: sticky; 
-            left: 0; 
-            z-index: 5; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
+            /* 移动端不 sticky，避免错位 */
         }
-        @media (max-width: 768px) {
-            .label-col { position: static; box-shadow: none; }
+        @media (min-width: 769px) {
+            .label-col {
+                position: sticky;
+                left: 0;
+                z-index: 5;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            }
         }
         .header-row th { 
             background: #fff; 
-            position: sticky; 
-            top: 0; 
-            z-index: 6; 
             color: var(--primary); 
             border-bottom: 2px solid var(--primary); 
+            font-weight: bold;
+            padding: 8px 6px;
         }
-        .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); }
-        .total-val { font-size: 18px; font-weight: 800; color: var(--primary); }
-        .is-winner .total-val { color: var(--gold); }
-        .crown-icon { display: none; font-size: 18px; margin-bottom: 3px; }
-        .is-winner .crown-icon { display: block; }
+        .cat-row { 
+            background: #fff1f0 !important; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+        .total-val { 
+            font-size: 16px; 
+            font-weight: 800; 
+            color: var(--primary); 
+        }
+        .is-winner .total-val { 
+            color: var(--gold); 
+        }
+        .crown-icon { 
+            display: none; 
+            font-size: 16px; 
+            margin-bottom: 2px; 
+        }
+        .is-winner .crown-icon { 
+            display: block; 
+        }
         .del-btn { 
             display: block; 
             margin-top: 4px; 
-            font-size: 11px; 
+            font-size: 10px; 
             color: #999; 
             cursor: pointer; 
             border: 1px solid #ddd; 
-            padding: 1px 7px; 
+            padding: 0 6px; 
             border-radius: 10px; 
             width: fit-content; 
             margin: 4px auto 0 auto; 
+            line-height: 1.2;
         }
 
+        /* 打印样式 */
         @media print {
             @page { size: A4 landscape; margin: 0.5cm; }
             .input-panel, .del-btn, .action-btns, .rule-toggle-container, .top-nav-container .btn-link:not(.rule-btn) { display: none !important; }
             .rule-body.print-active { display: block !important; border: 1px solid #ffe58f; margin-bottom: 15px; }
-            .compare-table th, .compare-table td { padding: 6px 3px !important; font-size: 11px !important; }
+            .compare-table th, .compare-table td { padding: 5px 3px !important; font-size: 10px !important; }
             .label-col { position: static !important; }
+            .scroll-hint { display: none !important; }
         }
     </style>
 </head>
@@ -226,7 +372,6 @@
             </div>
             <div class="input-group">
                 <label>第13个月保费继续率</label>
-                <!-- 默认值设为 "80%（含）以上" -->
                 <select id="referralContinuation">
                     <option value="80%以下">80% 以下</option>
                     <option value="80%以上" selected>80%（含）以上</option>
@@ -235,6 +380,9 @@
         </div>
         <button class="btn-calc" onclick="addScheme()">加入对比方案</button>
     </div>
+
+    <!-- 滑动提示 -->
+    <div class="scroll-hint">← 左右滑动查看全部方案 →</div>
 
     <div class="table-wrapper">
         <table class="compare-table" id="resTable">
@@ -249,7 +397,6 @@
                 <tr data-k="subsidy"><td class="label-col">训津 (当期实发)</td></tr>
                 <tr class="cat-row"><td class="label-col">递延记账项</td></tr>
                 <tr data-k="defer"><td class="label-col">训津递延</td></tr>
-                <!-- 增员奖插入在递延之后 -->
                 <tr data-k="ref_total"><td class="label-col">增员奖</td></tr>
                 <tr class="total-row" data-k="total" style="background:#fff9f9"><td class="label-col">预计总收益 (含递延与增员奖)</td></tr>
             </tbody>
@@ -311,31 +458,28 @@
         return { cash: t*(1-d), defer: t*d };
     }
 
-    // ✅ 修正后的增员奖计算函数
+    // ✅ 修正后的增员奖计算函数（已验证 FYC=2999 正确）
     function calculateReferralBonus(referralFyc, months, continuation = '80%以上') {
         let c1 = 0;
 
-        // --- C1 计算 ---
         if (months === '1-12') {
             if (referralFyc < 1500) c1 = 0.05;
             else if (referralFyc < 3000) c1 = 0.15;
             else if (referralFyc < 6000) c1 = 0.21;
-            else c1 = 0.24; // >=6000
+            else c1 = 0.24;
         } else if (months === '13-24') {
             if (referralFyc >= 3000 && referralFyc < 6000) c1 = 0.08;
             else if (referralFyc >= 6000) c1 = 0.10;
-            else c1 = 0; // <3000 无奖励
+            else c1 = 0;
         }
 
-        // --- C2 计算：仅 13-24 月受继续率影响 ---
-        let c2 = 1; // 默认 100%
+        let c2 = 1;
         if (months === '13-24') {
             c2 = (continuation === '80%以上') ? 1 : 0;
         }
-        // 1-12 月：c2 恒为 1
 
         const bonus = referralFyc * c1 * c2;
-        return { c1: c1 * 100, c2: c2 * 100, total: bonus };
+        return { total: bonus };
     }
 
     function updateReferralInputs() {
@@ -387,16 +531,17 @@
             hasReferral
         });
 
-        // 添加表头
+        // 添加表头：换行 + 缩小字体
         const th = document.createElement('th');
         th.id = id + '-h';
-        th.innerHTML = `方案 ${sIdx}<br><small>${t}(${p})</small><span class="del-btn" onclick="removeCol('${id}')">移除</span>`;
+        th.style.fontSize = '11px';
+        th.style.padding = '6px 4px';
+        th.innerHTML = `方案${sIdx}<br>${t}(${p})<br><span class="del-btn" onclick="removeCol('${id}')">移除</span>`;
         document.getElementById('hRow').appendChild(th);
 
-        // 主数据对象
         const m = {
             rank: r,
-            tag: `${t}(${p})期`,
+            tag: `${t}(${p})`,
             fyc: `¥${f.toLocaleString()}`,
             sales: `¥${sales.toLocaleString()} (${(rate*100).toFixed(0)}%)`,
             subsidy: `¥${sub.cash.toLocaleString()}`,
@@ -405,7 +550,6 @@
             total: `<div class="crown-icon">👑</div><span class="total-val">¥${total.toLocaleString()}</span>`
         };
 
-        // 填充主表
         Array.from(document.getElementById('bBody').rows).forEach(row => {
             const k = row.getAttribute('data-k');
             if (k) {
@@ -444,14 +588,7 @@
     }
 
     function smartPrint() {
-        const table = document.getElementById('resTable');
-        const A4_W = 1080;
-        let originalZoom = document.body.style.zoom || '';
-        if(table.offsetWidth > A4_W) {
-            document.body.style.zoom = (A4_W / table.offsetWidth).toFixed(2);
-        }
         window.print();
-        setTimeout(() => document.body.style.zoom = originalZoom, 500);
     }
 
     function exportExcel() {
@@ -481,7 +618,7 @@
         c.height = 300;
         const ctx = c.getContext('2d'); 
         ctx.rotate(-0.4); 
-        ctx.font = 'bold 24px Arial';
+        ctx.font = 'bold 20px Arial';
         ctx.fillStyle = 'rgba(0,0,0,0.1)';
         ctx.fillText('PA福小昊 © 2026', 40, 160);
         document.getElementById('watermark').style.backgroundImage = `url(${c.toDataURL()})`;
