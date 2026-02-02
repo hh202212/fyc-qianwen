@@ -23,6 +23,7 @@
             padding: 12px; 
             overflow-x: hidden;
             color: #333;
+            position: relative;
         }
         * { box-sizing: border-box; }
 
@@ -35,22 +36,27 @@
             box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
             position: relative; 
             overflow: hidden;
-        }
-        
-        /* 水印层 */
-        .watermark-overlay { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 10; 
-            opacity: 1; /* 不再依赖外层 opacity */
-            background-repeat: repeat; 
-            background-size: 300px 300px; /* 控制密度 */
+            z-index: 2; /* 确保内容在水印之上 */
         }
 
+        /* ✅ 全新 CSS 水印实现 */
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1; /* 在内容之下 */
+            opacity: 1;
+            background-size: 300px 300px;
+            background-repeat: repeat;
+            background-position: 0 0;
+            /* 使用 CSS 渐变模拟文字水印（兼容性最强） */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cg transform='rotate(-30,150,150)' fill='rgba(60,60,60,0.25)' font-family='PingFang SC, Microsoft YaHei, sans-serif' font-size='24' font-weight='bold'%3E%3Ctext x='150' y='160' text-anchor='middle'%3EPA福小昊 © 2026%3C/text%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 其余样式保持不变 */
         .header-area { 
             border-bottom: 2px solid var(--primary); 
             margin-bottom: 12px; 
@@ -301,157 +307,141 @@
                 box-shadow: none !important; 
             }
             .scroll-hint { display: none !important; }
+            /* 打印时也显示水印 */
+            .watermark {
+                opacity: 0.3 !important;
+                z-index: 0 !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="mainContainer">
-    <div class="watermark-overlay" id="watermark"></div>
+    <!-- ✅ 新增：固定水印层（放在 body 最外层） -->
+    <div class="watermark"></div>
 
-    <!-- 其余 HTML 结构完全不变 -->
-    <div class="header-area">
-        <div>
-            <p class="main-title">新人收入目标测算看板</p>
-            <p class="sub-title">版权归PA福小昊 - 2026版C版标准</p>
-        </div>
-        <div class="action-btns">
-            <button class="btn-action" style="background:#52c41a;" onclick="exportExcel()">导出 Excel</button>
-            <button class="btn-action" style="background:#1890ff;" onclick="smartPrint()">打印 A4</button>
-        </div>
-    </div>
-
-    <div class="top-nav-container">
-        <div class="btn-link rule-btn" id="ruleBtn" onclick="toggleRule()">训练津贴发放条件</div>
-        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049d026fe.jpg" target="_blank" class="btn-link">首次钻方案 ↗</a>
-        <a href="https://www.pingan.cn" target="_blank" class="btn-link">新人小高峰方案 ↗</a>
-        <a href="https://www.pingan.cn" target="_blank" class="btn-link">主管陪访方案 ↗</a>
-        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049ece8ab.jpg" target="_blank" class="btn-link">新人一桌宴方案 ↗</a>
-    </div>
-
-    <div class="rule-body" id="ruleBody">
-        <div class="rule-columns">
-            <div class="rule-col">
-                <strong>第 1-12 期训练津贴发放条件</strong><br>
-                1．当月参会率≥75%；<br>
-                2．培训达标：飞鹰培训(第2月)、新锐培训(第4月)、新人集训合格(第5-12月，仅优+/优++)；<br>
-                3．截至当月已转正（自入司第 4 月起考察）
+    <div class="container" id="mainContainer">
+        <!-- 原有内容，无需 watermar-overlay -->
+        <div class="header-area">
+            <div>
+                <p class="main-title">新人收入目标测算看板</p>
+                <p class="sub-title">版权归PA福小昊 - 2026版C版标准</p>
             </div>
-            <div class="rule-col">
-                <strong>第 13-18 期训练津贴发放条件</strong><br>
-                （一）当月参会率≥75%；<br>
-                （二）新契约在职单第 13 月保费继续率≥80%。
+            <div class="action-btns">
+                <button class="btn-action" style="background:#52c41a;" onclick="exportExcel()">导出 Excel</button>
+                <button class="btn-action" style="background:#1890ff;" onclick="smartPrint()">打印 A4</button>
             </div>
         </div>
-    </div>
 
-    <div class="input-panel">
-        <div class="input-group">
-            <label>人员职级</label>
-            <select id="rank">
-                <option value="P0" selected>P0 试用业务员</option>
-                <option value="P1">P1 业务员</option><option value="P2">P2 业务员</option>
-                <option value="P3">P3 业务员</option><option value="P4">P4 业务员</option>
-                <option value="P5">P5 业务员</option><option value="P6">P6 业务员</option>
-                <option value="P7">P7 业务员</option><option value="P8">P8 业务员</option>
-                <option value="P9">P9 业务员</option>
-            </select>
+        <div class="top-nav-container">
+            <div class="btn-link rule-btn" id="ruleBtn" onclick="toggleRule()">训练津贴发放条件</div>
+            <a href="https://free-img.400040.xyz/4/2026/02/01/697f049d026fe.jpg" target="_blank" class="btn-link">首次钻方案 ↗</a>
+            <a href="https://www.pingan.cn" target="_blank" class="btn-link">新人小高峰方案 ↗</a>
+            <a href="https://www.pingan.cn" target="_blank" class="btn-link">主管陪访方案 ↗</a>
+            <a href="https://free-img.400040.xyz/4/2026/02/01/697f049ece8ab.jpg" target="_blank" class="btn-link">新人一桌宴方案 ↗</a>
         </div>
-        <div class="input-group">
-            <label>人员标签</label>
-            <select id="tag" onchange="initPeriodOptions()">
-                <option value="优++">优++新人</option><option value="优+" selected>优+新人</option>
-                <option value="FNA">FNA新人</option><option value="NA">NA新人</option>
-            </select>
+
+        <div class="rule-body" id="ruleBody">
+            <div class="rule-columns">
+                <div class="rule-col">
+                    <strong>第 1-12 期训练津贴发放条件</strong><br>
+                    1．当月参会率≥75%；<br>
+                    2．培训达标：飞鹰培训(第2月)、新锐培训(第4月)、新人集训合格(第5-12月，仅优+/优++)；<br>
+                    3．截至当月已转正（自入司第 4 月起考察）
+                </div>
+                <div class="rule-col">
+                    <strong>第 13-18 期训练津贴发放条件</strong><br>
+                    （一）当月参会率≥75%；<br>
+                    （二）新契约在职单第 13 月保费继续率≥80%。
+                </div>
+            </div>
         </div>
-        <div class="input-group"><label>训练津贴期数</label><select id="period"></select></div>
-        <div class="input-group">
-            <label>个人月度FYC (元)</label>
-            <input type="number" id="fyc" value="3000">
-        </div>
-        <div class="input-group">
-            <label>是否有增员？</label>
-            <select id="hasReferral" onchange="updateReferralInputs()">
-                <option value="否">否</option>
-                <option value="是">是</option>
-            </select>
-        </div>
-        <div id="referralInputs" style="display: none;">
+
+        <div class="input-panel">
             <div class="input-group">
-                <label>被推荐新人入司月数</label>
-                <select id="referralMonths">
-                    <option value="1-12">1-12 月</option>
-                    <option value="13-24">13-24 月</option>
+                <label>人员职级</label>
+                <select id="rank">
+                    <option value="P0" selected>P0 试用业务员</option>
+                    <option value="P1">P1 业务员</option><option value="P2">P2 业务员</option>
+                    <option value="P3">P3 业务员</option><option value="P4">P4 业务员</option>
+                    <option value="P5">P5 业务员</option><option value="P6">P6 业务员</option>
+                    <option value="P7">P7 业务员</option><option value="P8">P8 业务员</option>
+                    <option value="P9">P9 业务员</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>被推荐新人当月FYC (元)</label>
-                <input type="number" id="referralFycInput" value="2999" min="0">
-            </div>
-            <div class="input-group">
-                <label>第13个月保费继续率</label>
-                <select id="referralContinuation">
-                    <option value="80%以下">80% 以下</option>
-                    <option value="80%以上" selected>80%（含）以上</option>
+                <label>人员标签</label>
+                <select id="tag" onchange="initPeriodOptions()">
+                    <option value="优++">优++新人</option><option value="优+" selected>优+新人</option>
+                    <option value="FNA">FNA新人</option><option value="NA">NA新人</option>
                 </select>
             </div>
+            <div class="input-group"><label>训练津贴期数</label><select id="period"></select></div>
+            <div class="input-group">
+                <label>个人月度FYC (元)</label>
+                <input type="number" id="fyc" value="3000">
+            </div>
+            <div class="input-group">
+                <label>是否有增员？</label>
+                <select id="hasReferral" onchange="updateReferralInputs()">
+                    <option value="否">否</option>
+                    <option value="是">是</option>
+                </select>
+            </div>
+            <div id="referralInputs" style="display: none;">
+                <div class="input-group">
+                    <label>被推荐新人入司月数</label>
+                    <select id="referralMonths">
+                        <option value="1-12">1-12 月</option>
+                        <option value="13-24">13-24 月</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>被推荐新人当月FYC (元)</label>
+                    <input type="number" id="referralFycInput" value="2999" min="0">
+                </div>
+                <div class="input-group">
+                    <label>第13个月保费继续率</label>
+                    <select id="referralContinuation">
+                        <option value="80%以下">80% 以下</option>
+                        <option value="80%以上" selected>80%（含）以上</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-calc" onclick="addScheme()">加入对比方案</button>
         </div>
-        <button class="btn-calc" onclick="addScheme()">加入对比方案</button>
+
+        <div class="scroll-hint">← 左右滑动查看全部方案 →</div>
+
+        <div class="table-wrapper">
+            <table class="compare-table" id="resTable">
+                <thead><tr class="header-row" id="hRow"><th class="label-col">对比维度</th></tr></thead>
+                <tbody id="bBody">
+                    <tr class="cat-row"><td class="label-col">人员信息</td></tr>
+                    <tr data-k="rank"><td class="label-col">测算职级</td></tr>
+                    <tr data-k="tag"><td class="label-col">标签/期数</td></tr>
+                    <tr class="cat-row"><td class="label-col">直接收入现金流</td></tr>
+                    <tr data-k="fyc"><td class="label-col">佣金 (FYC)</td></tr>
+                    <tr data-k="sales"><td class="label-col">销售津贴 (系数C)</td></tr>
+                    <tr data-k="subsidy"><td class="label-col">训津 (当期实发)</td></tr>
+                    <tr class="cat-row"><td class="label-col">递延记账项</td></tr>
+                    <tr data-k="defer"><td class="label-col">训津递延</td></tr>
+                    <tr data-k="ref_total"><td class="label-col">增员奖</td></tr>
+                    <tr class="total-row" data-k="total" style="background:#fff9f9"><td class="label-col">预计总收益 (含递延与增员奖)</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="scroll-hint">← 左右滑动查看全部方案 →</div>
+    <script>
+        // ... [保留你原有的所有 JS 函数] ...
 
-    <div class="table-wrapper">
-        <table class="compare-table" id="resTable">
-            <thead><tr class="header-row" id="hRow"><th class="label-col">对比维度</th></tr></thead>
-            <tbody id="bBody">
-                <tr class="cat-row"><td class="label-col">人员信息</td></tr>
-                <tr data-k="rank"><td class="label-col">测算职级</td></tr>
-                <tr data-k="tag"><td class="label-col">标签/期数</td></tr>
-                <tr class="cat-row"><td class="label-col">直接收入现金流</td></tr>
-                <tr data-k="fyc"><td class="label-col">佣金 (FYC)</td></tr>
-                <tr data-k="sales"><td class="label-col">销售津贴 (系数C)</td></tr>
-                <tr data-k="subsidy"><td class="label-col">训津 (当期实发)</td></tr>
-                <tr class="cat-row"><td class="label-col">递延记账项</td></tr>
-                <tr data-k="defer"><td class="label-col">训津递延</td></tr>
-                <tr data-k="ref_total"><td class="label-col">增员奖</td></tr>
-                <tr class="total-row" data-k="total" style="background:#fff9f9"><td class="label-col">预计总收益 (含递延与增员奖)</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    // ... [此处保留你原有的全部 JS 函数：toggleRule, salesMatrix, initPeriodOptions, getSalesRate, getSubsidy, calculateReferralBonus, updateReferralInputs, addScheme, removeCol, updateWin, smartPrint, exportExcel] ...
-
-    window.onload = () => {
-        initPeriodOptions();
-        updateReferralInputs();
-        
-        // ✅ 优化后的水印生成逻辑
-        const c = document.createElement('canvas');
-        const size = 300; // 水印单元格大小
-        c.width = size;
-        c.height = size;
-        const ctx = c.getContext('2d');
-        
-        // 清空背景
-        ctx.clearRect(0, 0, size, size);
-        
-        // 设置水印样式
-        ctx.font = 'bold 24px "Microsoft YaHei", sans-serif';
-        ctx.fillStyle = 'rgba(60, 60, 60, 0.25)'; // 深灰 + 25% 透明度
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // 旋转并绘制文字（居中）
-        ctx.translate(size / 2, size / 2);
-        ctx.rotate(-Math.PI / 6); // -30度
-        ctx.fillText('PA福小昊 © 2026', 0, 0);
-        
-        // 应用到背景
-        document.getElementById('watermark').style.backgroundImage = `url(${c.toDataURL()})`;
-    }
-</script>
+        // ✅ 移除 window.onload 中的 Canvas 水印逻辑
+        window.onload = () => {
+            initPeriodOptions();
+            updateReferralInputs();
+            // 水印已由 CSS 实现，无需 JS
+        }
+    </script>
 </body>
 </html>
