@@ -15,14 +15,16 @@
 
         .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 20; }
         .main-title { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
-        .sub-title { font-size: 11px; color: #999; }
 
         .top-nav-container { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 5px; position: relative; z-index: 20; }
         .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
         
-        /* 规则区 */
-        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 10px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 12px; position: relative; z-index: 19; }
-        .rule-col { font-size: 11px; color: #856404; line-height: 1.6; }
+        /* 规则区：锁定原文排版 */
+        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 15px; position: relative; z-index: 19; }
+        .rule-columns { display: flex; gap: 20px; flex-wrap: wrap; }
+        .rule-col { flex: 1; min-width: 280px; font-size: 11px; color: #856404; line-height: 1.7; }
+        .indent-1 { padding-left: 12px; margin-bottom: 4px; }
+        .indent-2 { padding-left: 24px; margin-bottom: 2px; }
 
         .input-panel { display: flex; flex-wrap: wrap; gap: 8px; background: var(--gray); padding: 12px; border-radius: 6px; margin-bottom: 15px; position: relative; z-index: 20; }
         .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 45%; }
@@ -38,33 +40,32 @@
         .history-tag { 
             background: #fff; border: 1px solid #d9d9d9; padding: 4px 10px; border-radius: 15px; 
             font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .tag-close { color: #999; font-size: 14px; padding: 0 2px; }
 
         .btn-calc { background: var(--primary); color: #fff; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; margin-top: 8px; }
 
-        /* 表格优化 */
         .table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; position: relative; z-index: 15; background: #fff; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
         .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .compare-table th, .compare-table td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 5px; text-align: center; white-space: nowrap; }
         
-        .label-col { width: 95px; min-width: 95px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; font-size: 12px; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .label-col { width: 105px; min-width: 105px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; font-size: 11px; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
         
-        .scheme-header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 75px; }
+        .scheme-header { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 80px; }
         .scheme-title { font-size: 12px; font-weight: bold; color: var(--primary); }
 
-        .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); font-size: 12px; }
+        .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); font-size: 11px; }
         
         /* 皇冠图标与总计样式 */
-        .total-cell-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-        .total-val { font-size: 14px; font-weight: 800; color: var(--primary); }
-        .crown-icon { font-size: 16px; height: 16px; display: none; }
+        .total-cell-content { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .total-val { font-size: 13px; font-weight: 800; color: var(--primary); }
+        .crown-icon { font-size: 14px; height: 14px; display: none; }
         .is-winner .total-val { color: var(--gold); }
         .is-winner .crown-icon { display: block; }
 
         @media print {
-            .input-panel, .top-nav-container a, .header-area div button { display: none !important; }
+            .input-panel, .top-nav-container a, .header-area div button, .tag-close { display: none !important; }
             .label-col { position: static !important; }
         }
     </style>
@@ -77,9 +78,9 @@
     <div class="header-area">
         <p class="main-title">新人收入目标测算看板</p>
         <div style="display: flex; gap: 5px;">
-            <button onclick="clearAllData()" style="flex:1; background:var(--danger); border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">清空</button>
-            <button onclick="exportExcel()" style="flex:1; background:#52c41a; border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">导出</button>
-            <button onclick="window.print()" style="flex:1; background:var(--secondary); border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">打印</button>
+            <button onclick="clearAllData()" style="flex:1; background:var(--danger); border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">清空记录</button>
+            <button onclick="exportExcel()" style="flex:1; background:#52c41a; border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">导出Excel</button>
+            <button onclick="window.print()" style="flex:1; background:var(--secondary); border:none; color:#fff; border-radius:4px; padding:5px; font-size:11px;">打印A4</button>
         </div>
     </div>
 
@@ -90,14 +91,22 @@
     </div>
 
     <div class="rule-body" id="ruleBody">
-        <div class="rule-col">
-            <strong>【第1-12期】训练津贴发放条件：</strong><br>
-            1. 当月参会率≥75%；<br>
-            2. 培训达标：飞鹰、新锐、新人集训合格；<br>
-            3. 第4月起需转正。<br>
-            <strong>【第13-18期】训练津贴发放条件：</strong><br>
-            1. 当月参会率≥75%；<br>
-            2. 继续率≥80%。
+        <div class="rule-columns">
+            <div class="rule-col">
+                <div style="font-weight:bold; color:#5d4603; margin-bottom:5px; border-bottom:1px dashed #ffe58f;">第 1-12 期训练津贴发放条件</div>
+                <div>（一）新人优++、优+、FNA 训练津贴发放条件：</div>
+                <div class="indent-1">1．当月参会率≥75%；</div>
+                <div class="indent-1">2．截至当月已完成相关培训并达标：</div>
+                <div class="indent-2">（1）当月飞鹰培训合格（入司第 2 月考察）；</div>
+                <div class="indent-2">（2）当月新锐培训合格（入司第 4 月考察）；</div>
+                <div class="indent-2">（3）当月新人集训培训合格（入司第 5-12 月考察，仅限优+、优++）。</div>
+                <div class="indent-1">3．截至当月已转正（自入司第 4 月起考察）</div>
+            </div>
+            <div class="rule-col">
+                <div style="font-weight:bold; color:#5d4603; margin-bottom:5px; border-bottom:1px dashed #ffe58f;">第 13-18 期训练津贴发放条件</div>
+                <div class="indent-1">（一）当月参会率≥75%；</div>
+                <div class="indent-1">（二）新契约在职单第 13 月保费继续率≥80%。</div>
+            </div>
         </div>
     </div>
 
@@ -111,7 +120,7 @@
         <div id="referralInputs">
             <div class="input-group"><label>推荐月数</label><select id="referralMonths"><option value="1-12">1-12月</option><option value="13-24">13-24月</option></select></div>
             <div class="input-group"><label>推荐人FYC</label><input type="number" id="referralFycInput" value="3000"></div>
-            <div class="input-group"><label>推荐人继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
+            <div class="input-group"><label>继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
         </div>
         
         <div style="width: 100%; border-top: 1px dashed #ccc; margin-top: 5px; padding-top: 8px;">
@@ -132,13 +141,13 @@
                 <tr class="cat-row"><td class="label-col">基本信息</td></tr>
                 <tr data-k="rank"><td class="label-col">测算职级</td></tr>
                 <tr data-k="tag"><td class="label-col">标签/期数</td></tr>
-                <tr class="cat-row"><td class="label-col">收益项目</td></tr>
+                <tr class="cat-row"><td class="label-col">直接收益项目</td></tr>
                 <tr data-k="fyc"><td class="label-col">佣金 (FYC)</td></tr>
                 <tr data-k="sales"><td class="label-col">销售津贴</td></tr>
                 <tr data-k="subsidy"><td class="label-col">训津 (实发)</td></tr>
-                <tr data-k="defer"><td class="label-col">训津递延</td></tr>
+                <tr data-k="defer"><td class="label-col">训练津贴递延</td></tr>
                 <tr data-k="ref_total"><td class="label-col">增员奖</td></tr>
-                <tr class="cat-row"><td class="label-col">其他福利</td></tr>
+                <tr class="cat-row"><td class="label-col">其他福利项</td></tr>
                 <tr data-k="total" style="background:#fff9f9"><td class="label-col">预计总利益</td></tr>
             </tbody>
         </table>
@@ -149,16 +158,16 @@
     let currentCustomItems = [], schemes = [], welfareHistory = [], sIdx = 1;
 
     function saveData() { 
-        localStorage.setItem('fyc_v9', JSON.stringify(schemes)); 
-        localStorage.setItem('fyc_idx_v9', sIdx); 
-        localStorage.setItem('fyc_wHist_v9', JSON.stringify(welfareHistory)); 
+        localStorage.setItem('fyc_v10', JSON.stringify(schemes)); 
+        localStorage.setItem('fyc_idx_v10', sIdx); 
+        localStorage.setItem('fyc_wHist_v10', JSON.stringify(welfareHistory)); 
     }
     function loadData() {
-        const s = localStorage.getItem('fyc_v9'), h = localStorage.getItem('fyc_wHist_v9');
-        if (s) { schemes = JSON.parse(s); sIdx = parseInt(localStorage.getItem('fyc_idx_v9')) || 1; rebuildTable(); }
+        const s = localStorage.getItem('fyc_v10'), h = localStorage.getItem('fyc_wHist_v10');
+        if (s) { schemes = JSON.parse(s); sIdx = parseInt(localStorage.getItem('fyc_idx_v10')) || 1; rebuildTable(); }
         if (h) { welfareHistory = JSON.parse(h); renderHistoryTags(); }
     }
-    function clearAllData() { if(confirm("清空记录？")) { localStorage.clear(); location.reload(); } }
+    function clearAllData() { if(confirm("确定清空记录？")) { localStorage.clear(); location.reload(); } }
 
     function rebuildTable() {
         const hRow = document.getElementById('hRow'), bBody = document.getElementById('bBody');
@@ -167,7 +176,7 @@
         Array.from(bBody.querySelectorAll('tr[data-custom-row]')).forEach(r => r.remove());
 
         const allNames = [...new Set(schemes.flatMap(s => s.customItems.map(i => i.name)))];
-        const otherCat = Array.from(bBody.rows).find(r => r.innerText.includes('其他福利'));
+        const otherCat = Array.from(bBody.rows).find(r => r.innerText.includes('其他福利项'));
         allNames.forEach(name => {
             const tr = document.createElement('tr'); tr.setAttribute('data-custom-row', name);
             tr.innerHTML = `<td class="label-col">${name}</td>`; otherCat.after(tr);
@@ -234,7 +243,6 @@
     }
 
     function removeCol(id) { schemes = schemes.filter(x => x.id !== id); saveData(); rebuildTable(); }
-    
     function updateWin() { 
         if(!schemes.length) return; 
         const max = Math.max(...schemes.map(s => s.total)); 
@@ -247,7 +255,6 @@
     function toggleRule() { const b = document.getElementById('ruleBody'); b.style.display = (b.style.display==='block'?'none':'block'); }
     function initPeriodOptions() { const t = document.getElementById('tag').value, p = document.getElementById('period'); p.innerHTML = ''; let opts = t==='优++' ? [['4-12期','4-12'],['13-18期','13-18']] : [['1-3期','1-3'],['4-12期','4-12'],['13-18期','13-18']]; opts.forEach(o => p.add(new Option(o[0], o[1]))); }
     function updateReferralInputs() { document.getElementById('referralInputs').style.display = (document.getElementById('hasReferral').value==='是'?'flex':'none'); }
-    function exportExcel() { const t = document.getElementById('resTable').cloneNode(true); t.querySelectorAll('.crown-icon').forEach(e => e.remove()); XLSX.writeFile(XLSX.utils.table_to_book(t), '新人收入报告.xlsx'); }
     window.onload = () => { initPeriodOptions(); loadData(); const c = document.createElement('canvas'); c.width=200; c.height=150; const ctx = c.getContext('2d'); ctx.rotate(-0.4); ctx.font='14px Arial'; ctx.fillStyle='rgba(0,0,0,0.1)'; ctx.fillText('PA福小昊', 20, 80); document.getElementById('watermark').style.backgroundImage = `url(${c.toDataURL()})`; }
 </script>
 </body>
