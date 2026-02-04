@@ -7,60 +7,65 @@
     <script src="https://fastly.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #e60012; --gray: #f4f4f4; --border: #ddd; --gold: #d4a017; --tip-bg: #fffbe6; --secondary: #1890ff; --danger: #ff4d4f; }
-        body { font-family: "PingFang SC", "Microsoft YaHei"; background: #fafafa; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: "PingFang SC", "Microsoft YaHei"; background: #fafafa; margin: 0; padding: 8px; -webkit-tap-highlight-color: transparent; }
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
         .watermark-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.12; background-repeat: repeat; }
 
-        .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 20; flex-wrap: wrap; gap: 10px; }
-        .main-title { font-size: 20px; font-weight: bold; color: #333; margin: 0; }
-        .sub-title { font-size: 12px; color: #999; width: 100%; }
+        .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 20; }
+        .main-title { font-size: 18px; font-weight: bold; color: #333; margin: 0; }
+        .sub-title { font-size: 11px; color: #999; }
 
-        /* 导航组自适应 */
-        .top-nav-container { margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 6px; position: relative; z-index: 20; }
-        .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
+        .top-nav-container { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 5px; position: relative; z-index: 20; }
+        .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
         
-        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 15px; position: relative; z-index: 19; }
-        .rule-columns { display: flex; gap: 20px; flex-wrap: wrap; }
-        .rule-col { flex: 1; min-width: 260px; font-size: 12px; color: #856404; line-height: 1.6; }
+        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 10px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 12px; position: relative; z-index: 19; }
+        .rule-col { font-size: 11px; color: #856404; line-height: 1.5; }
 
-        /* 输入面板：手机端自动切换为列布局 */
-        .input-panel { display: flex; flex-wrap: wrap; gap: 10px; background: var(--gray); padding: 15px; border-radius: 6px; margin-bottom: 20px; position: relative; z-index: 20; align-items: flex-end; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 45%; } /* 手机端每行两个 */
-        @media (max-width: 600px) { .input-group { min-width: 100%; } } /* 超窄屏单列 */
+        /* 输入面板自适应 */
+        .input-panel { display: flex; flex-wrap: wrap; gap: 8px; background: var(--gray); padding: 12px; border-radius: 6px; margin-bottom: 15px; position: relative; z-index: 20; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 45%; }
+        @media (max-width: 400px) { .input-group { min-width: 100%; } }
         
-        .input-group label { font-size: 12px; font-weight: bold; color: #444; }
-        input, select { height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 4px; background: #fff; font-size: 14px; width: 100%; outline: none; }
+        .input-group label { font-size: 11px; font-weight: bold; color: #444; }
+        input, select { height: 36px; padding: 0 8px; border: 1px solid var(--border); border-radius: 4px; background: #fff; font-size: 13px; width: 100%; outline: none; }
 
-        /* 增员项手机端对齐 */
-        #referralInputs { width: 100%; display: none; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-        .ref-item { flex: 1; min-width: 45%; display: flex; flex-direction: column; gap: 5px; }
-        @media (max-width: 600px) { .ref-item { min-width: 100%; } }
+        #referralInputs { width: 100%; display: none; flex-wrap: wrap; gap: 8px; margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 8px; }
+        .ref-item { flex: 1; min-width: 45%; display: flex; flex-direction: column; gap: 4px; }
 
-        .btn-calc { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; width: 100%; margin-top: 10px; }
+        /* 福利快捷区美化 */
+        .history-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .history-tag { 
+            background: #fff; border: 1px solid #d9d9d9; padding: 4px 10px; border-radius: 15px; 
+            font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s;
+        }
+        .history-tag:active { background: #f0f0f0; }
+        .tag-name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tag-close { color: #999; font-size: 14px; padding: 0 2px; }
+        .tag-close:hover { color: var(--danger); }
 
-        /* 表格区：首列锁定（核心适配） */
+        .btn-calc { background: var(--primary); color: #fff; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; margin-top: 8px; }
+
+        /* 表格自适应优化 */
         .table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; position: relative; z-index: 15; background: #fff; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
         .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        .compare-table th, .compare-table td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: center; font-size: 13px; white-space: nowrap; }
+        .compare-table th, .compare-table td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 5px; text-align: center; white-space: nowrap; }
         
-        /* 手机端首列固定 */
-        .label-col { width: 120px; min-width: 120px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .label-col { width: 95px; min-width: 95px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; font-size: 12px; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        
+        /* 方案标题容器：确保显示“方案1” */
+        .scheme-header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 75px; }
+        .scheme-title { font-size: 13px; font-weight: bold; color: var(--primary); }
+        @media (max-width: 480px) { .scheme-title { font-size: 11px; } } /* 屏幕过窄时自动缩小字体 */
 
-        .header-row th { background: #fff; position: sticky; top: 0; z-index: 6; color: var(--primary); border-bottom: 2px solid var(--primary); }
-        .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); }
-        
-        .total-val { font-size: 16px; font-weight: 800; color: var(--primary); }
-        .crown-icon { display: none; font-size: 16px; }
+        .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); font-size: 12px; }
+        .total-val { font-size: 15px; font-weight: 800; color: var(--primary); }
         .is-winner .total-val { color: var(--gold); }
-        .is-winner .crown-icon { display: block; }
 
-        /* 隐藏打印专用元素 */
         @media print {
-            @page { size: A4 landscape; margin: 0.3cm; }
-            .input-panel, .del-btn, .rule-btn, .top-nav-container a { display: none !important; }
-            .rule-body.print-active { display: block !important; border: 1px solid #ffe58f; font-size: 10px; }
+            .input-panel, .del-btn, .rule-btn, .top-nav-container a, .header-area div button { display: none !important; }
             .label-col { position: static !important; }
         }
     </style>
@@ -72,11 +77,10 @@
 
     <div class="header-area">
         <p class="main-title">新人收入目标测算看板</p>
-        <p class="sub-title">版权归PA福小昊 - 2026版 (移动自适应版)</p>
-        <div style="width: 100%; display: flex; gap: 5px; margin-top: 5px;">
-            <button onclick="clearAllData()" style="flex:1; background:var(--danger); border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">清空</button>
-            <button onclick="exportExcel()" style="flex:1; background:#52c41a; border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">导出</button>
-            <button onclick="smartPrint()" style="flex:1; background:var(--secondary); border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">打印</button>
+        <div style="display: flex; gap: 5px;">
+            <button onclick="clearAllData()" style="flex:1; background:var(--danger); border:none; color:#fff; border-radius:4px; padding:5px 10px; font-size:11px;">清空</button>
+            <button onclick="exportExcel()" style="flex:1; background:#52c41a; border:none; color:#fff; border-radius:4px; padding:5px 10px; font-size:11px;">导出</button>
+            <button onclick="smartPrint()" style="flex:1; background:var(--secondary); border:none; color:#fff; border-radius:4px; padding:5px 10px; font-size:11px;">打印</button>
         </div>
     </div>
 
@@ -87,15 +91,9 @@
     </div>
 
     <div class="rule-body" id="ruleBody">
-        <div class="rule-columns">
-            <div class="rule-col">
-                <strong>第 1-12 期训练津贴发放条件</strong><br>
-                1．当月参会率≥75%； 2．培训达标：飞鹰、新锐、新人集训合格； 3．第4月起需转正。
-            </div>
-            <div class="rule-col">
-                <strong>第 13-18 期训练津贴发放条件</strong><br>
-                （一）当月参会率≥75%；（二）继续率≥80%。
-            </div>
+        <div class="rule-col">
+            <strong>1-12期：</strong> 参会率≥75%；飞鹰、新锐、新人集训合格；第4月起需转正。<br>
+            <strong>13-18期：</strong> 参会率≥75%；继续率≥80%。
         </div>
     </div>
 
@@ -112,14 +110,13 @@
             <div class="ref-item"><label>继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
         </div>
         
-        <div style="width: 100%; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;">
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="customName" placeholder="福利项目" style="flex:2;">
+        <div style="width: 100%; border-top: 1px dashed #ccc; margin-top: 5px; padding-top: 8px;">
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="customName" placeholder="福利名称" style="flex:2;">
                 <input type="number" id="customAmount" placeholder="价值" style="flex:1;">
-                <button onclick="addCustomItem()" style="background:var(--secondary); color:#fff; border:none; border-radius:4px; padding:0 10px;">＋</button>
+                <button onclick="addCustomItem()" style="background:var(--secondary); color:#fff; border:none; border-radius:4px; padding:0 12px; font-weight:bold;">＋</button>
             </div>
-            <div class="history-tags" id="historyTags"></div>
-        </div>
+            <div class="history-tags" id="historyTags"></div> </div>
         <button class="btn-calc" onclick="addScheme()">生成方案并对比</button>
     </div>
 
@@ -146,13 +143,17 @@
 <script>
     let currentCustomItems = [], schemes = [], welfareHistory = [], sIdx = 1;
 
-    function saveData() { localStorage.setItem('fyc_m', JSON.stringify(schemes)); localStorage.setItem('fyc_idx_m', sIdx); localStorage.setItem('fyc_hist_m', JSON.stringify(welfareHistory)); }
+    function saveData() { 
+        localStorage.setItem('fyc_v8', JSON.stringify(schemes)); 
+        localStorage.setItem('fyc_idx_v8', sIdx); 
+        localStorage.setItem('fyc_wHist_v8', JSON.stringify(welfareHistory)); 
+    }
     function loadData() {
-        const saved = localStorage.getItem('fyc_m'), savedH = localStorage.getItem('fyc_hist_m');
-        if (saved) { schemes = JSON.parse(saved); sIdx = parseInt(localStorage.getItem('fyc_idx_m')) || 1; rebuildTable(); }
+        const saved = localStorage.getItem('fyc_v8'), savedH = localStorage.getItem('fyc_wHist_v8');
+        if (saved) { schemes = JSON.parse(saved); sIdx = parseInt(localStorage.getItem('fyc_idx_v8')) || 1; rebuildTable(); }
         if (savedH) { welfareHistory = JSON.parse(savedH); renderHistoryTags(); }
     }
-    function clearAllData() { if(confirm("清空记录？")) { localStorage.clear(); location.reload(); } }
+    function clearAllData() { if(confirm("清空全部记录？")) { localStorage.clear(); location.reload(); } }
 
     function rebuildTable() {
         const hRow = document.getElementById('hRow'), bBody = document.getElementById('bBody');
@@ -168,13 +169,23 @@
         });
 
         schemes.forEach(s => {
-            const th = document.createElement('th'); th.innerHTML = `方${s.displayIdx}<br><span onclick="removeCol('${s.id}')" style="font-size:10px; color:red;">移除</span>`;
+            const th = document.createElement('th');
+            // 修改点：确保显示完整“方案1”，且支持移除功能
+            th.innerHTML = `
+                <div class="scheme-header">
+                    <span class="scheme-title">方案${s.displayIdx}</span>
+                    <span onclick="removeCol('${s.id}')" style="font-size:10px; color:#999; text-decoration:underline;">移除</span>
+                </div>`;
             hRow.appendChild(th);
+
             Array.from(bBody.rows).forEach(row => {
                 const k = row.getAttribute('data-k'), cName = row.getAttribute('data-custom-row'), td = document.createElement('td');
                 td.className = s.id + '-c' + (k==='total'?' win-cell':'');
                 if(k) td.innerHTML = s.dataMap[k] || '—';
-                else if(cName) { const match = s.customItems.find(i => i.name === cName); td.innerHTML = match ? `¥${match.amount}` : '—'; }
+                else if(cName) { 
+                    const match = s.customItems.find(i => i.name === cName); 
+                    td.innerHTML = match ? `¥${match.amount.toLocaleString()}` : '—'; 
+                }
                 row.appendChild(td);
             });
         });
@@ -188,12 +199,25 @@
             if (!welfareHistory.includes(name)) welfareHistory.push(name);
             document.getElementById('customName').value = ''; document.getElementById('customAmount').value = '';
             renderHistoryTags();
-            alert("福利项目暂存成功，点击下方按钮生成方案即可看到！");
+            alert("已暂存该福利，生成方案后即可查看");
         }
     }
 
+    // 修改点：福利历史标签添加关闭按钮
     function renderHistoryTags() {
-        document.getElementById('historyTags').innerHTML = welfareHistory.map(name => `<div class="history-tag" onclick="document.getElementById('customName').value='${name}'">${name}</div>`).join('');
+        document.getElementById('historyTags').innerHTML = welfareHistory.map((name, index) => `
+            <div class="history-tag">
+                <span class="tag-name" onclick="document.getElementById('customName').value='${name}'">${name}</span>
+                <span class="tag-close" onclick="removeHistoryItem(${index})">×</span>
+            </div>
+        `).join('');
+    }
+
+    function removeHistoryItem(index) {
+        event.stopPropagation();
+        welfareHistory.splice(index, 1);
+        renderHistoryTags();
+        saveData();
     }
 
     const salesMatrix = { 'P0':[0,0,0,0,0,0,0,0],'P1':[0,0,0,0,0,0,0,0],'P2':[0,0.04,0.09,0.13,0.13,0.13,0.13,0.13],'P3':[0,0.06,0.11,0.15,0.18,0.18,0.18,0.18],'P4':[0,0.06,0.25,0.30,0.35,0.35,0.35,0.35],'P5':[0,0.06,0.27,0.32,0.37,0.42,0.42,0.42],'P6':[0,0.06,0.30,0.34,0.40,0.45,0.47,0.47],'P7':[0,0.06,0.32,0.37,0.42,0.50,0.52,0.55],'P8':[0,0.06,0.32,0.37,0.45,0.52,0.55,0.57],'P9':[0,0.06,0.32,0.37,0.45,0.55,0.57,0.60] };
@@ -209,14 +233,14 @@
             ref=rf*c1*((rm==='13-24'&&rc==='80%以下')?0:1);
         }
         const total = f+sales+sub.cash+sub.defer+ref+currentCustomItems.reduce((s,i)=>s+i.amount, 0);
-        const dataMap = { rank:r, tag:`${t}(${p})`, fyc:`¥${f.toLocaleString()}`, sales:`¥${sales.toLocaleString()}`, subsidy:`¥${sub.cash.toLocaleString()}`, defer:`¥${sub.defer.toLocaleString()}`, ref_total:`¥${ref.toLocaleString()}`, total:`<div class="crown-icon">👑</div><span class="total-val">¥${total.toLocaleString()}</span>` };
+        const dataMap = { rank:r, tag:`${t}(${p})`, fyc:`¥${f.toLocaleString()}`, sales:`¥${sales.toLocaleString()}`, subsidy:`¥${sub.cash.toLocaleString()}`, defer:`¥${sub.defer.toLocaleString()}`, ref_total:`¥${ref.toLocaleString()}`, total:`¥${total.toLocaleString()}` };
         schemes.push({ id:'s'+Date.now(), total, displayIdx: sIdx++, customItems: [...currentCustomItems], dataMap });
         saveData(); rebuildTable(); currentCustomItems = [];
     }
 
     function removeCol(id) { schemes = schemes.filter(x => x.id !== id); saveData(); rebuildTable(); }
     function updateWin() { if(!schemes.length) return; const max = Math.max(...schemes.map(s => s.total)); schemes.forEach(s => { const el = document.querySelector('.' + s.id + '-c.win-cell'); if (el) el.classList.toggle('is-winner', s.total === max && max > 0); }); }
-    function toggleRule() { const b = document.getElementById('ruleBody'); b.style.display = (b.style.display==='block'?'none':'block'); b.classList.toggle('print-active'); }
+    function toggleRule() { const b = document.getElementById('ruleBody'); b.style.display = (b.style.display==='block'?'none':'block'); }
     function initPeriodOptions() { const t = document.getElementById('tag').value, p = document.getElementById('period'); p.innerHTML = ''; let opts = t==='优++' ? [['4-12期','4-12'],['13-18期','13-18']] : [['1-3期','1-3'],['4-12期','4-12'],['13-18期','13-18']]; opts.forEach(o => p.add(new Option(o[0], o[1]))); }
     function updateReferralInputs() { document.getElementById('referralInputs').style.display = (document.getElementById('hasReferral').value==='是'?'flex':'none'); }
     function smartPrint() { const t = document.getElementById('resTable'); document.body.style.zoom = (t.offsetWidth > 1000) ? (1000 / t.offsetWidth).toFixed(2) : 1; window.print(); setTimeout(()=>document.body.style.zoom=1,500); }
