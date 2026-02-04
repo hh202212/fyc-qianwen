@@ -2,72 +2,66 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>新人收入目标测算看板</title>
     <script src="https://fastly.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #e60012; --gray: #f4f4f4; --border: #ddd; --gold: #d4a017; --tip-bg: #fffbe6; --secondary: #1890ff; --danger: #ff4d4f; }
-        body { font-family: "PingFang SC", "Microsoft YaHei"; background: #fafafa; margin: 0; padding: 12px; }
+        body { font-family: "PingFang SC", "Microsoft YaHei"; background: #fafafa; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
-        .watermark-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.15; background-repeat: repeat; }
+        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .watermark-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.12; background-repeat: repeat; }
 
-        .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 20; flex-wrap: wrap; gap: 10px; }
-        .main-title { font-size: 22px; font-weight: bold; color: #333; margin: 0; }
+        .header-area { border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 20; flex-wrap: wrap; gap: 10px; }
+        .main-title { font-size: 20px; font-weight: bold; color: #333; margin: 0; }
+        .sub-title { font-size: 12px; color: #999; width: 100%; }
 
-        .top-nav-container { margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 20; }
-        .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; transition: 0.2s; }
+        /* 导航组自适应 */
+        .top-nav-container { margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 6px; position: relative; z-index: 20; }
+        .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
         
-        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 18px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 18px; position: relative; z-index: 19; }
-        .rule-columns { display: flex; gap: 30px; flex-wrap: wrap; }
-        .rule-col { flex: 1; min-width: 320px; font-size: 13px; color: #856404; line-height: 1.8; }
-        .rule-title-sm { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #5d4603; border-bottom: 1px dashed #ffe58f; padding-bottom: 4px; }
-        .indent-1 { padding-left: 15px; }
-        .indent-2 { padding-left: 30px; }
+        .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 15px; position: relative; z-index: 19; }
+        .rule-columns { display: flex; gap: 20px; flex-wrap: wrap; }
+        .rule-col { flex: 1; min-width: 260px; font-size: 12px; color: #856404; line-height: 1.6; }
 
-        /* 输入面板布局 */
-        .input-panel { display: flex; flex-wrap: wrap; gap: 12px; background: var(--gray); padding: 18px; border-radius: 6px; margin-bottom: 24px; position: relative; z-index: 20; align-items: flex-end; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 140px; }
-        .input-group label { font-size: 13px; font-weight: bold; color: #444; white-space: nowrap; }
-        input, select { height: 38px; padding: 0 8px; border: 1px solid var(--border); border-radius: 4px; background: #fff; font-size: 13px; width: 100%; outline: none; }
+        /* 输入面板：手机端自动切换为列布局 */
+        .input-panel { display: flex; flex-wrap: wrap; gap: 10px; background: var(--gray); padding: 15px; border-radius: 6px; margin-bottom: 20px; position: relative; z-index: 20; align-items: flex-end; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 45%; } /* 手机端每行两个 */
+        @media (max-width: 600px) { .input-group { min-width: 100%; } } /* 超窄屏单列 */
+        
+        .input-group label { font-size: 12px; font-weight: bold; color: #444; }
+        input, select { height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 4px; background: #fff; font-size: 14px; width: 100%; outline: none; }
 
-        /* 增员项对齐优化 */
-        #referralInputs { width: 100%; display: none; gap: 12px; margin-top: 5px; }
-        .ref-item { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
-        .ref-item label { font-size: 13px; font-weight: bold; color: #444; } /* 确保文字大小一致 */
+        /* 增员项手机端对齐 */
+        #referralInputs { width: 100%; display: none; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        .ref-item { flex: 1; min-width: 45%; display: flex; flex-direction: column; gap: 5px; }
+        @media (max-width: 600px) { .ref-item { min-width: 100%; } }
 
-        /* 福利记忆库 */
-        .history-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-        .history-tag { background: #f0f0f0; border: 1px solid #ccc; padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; color: #666; }
-        .history-tag:hover { background: #e0e0e0; color: var(--primary); }
+        .btn-calc { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; width: 100%; margin-top: 10px; }
 
-        .custom-items-wrapper { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .custom-item-tag { background: #e6f7ff; border: 1px solid #91d5ff; color: #1890ff; padding: 4px 10px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-
-        .btn-calc { background: var(--primary); color: #fff; border: none; padding: 0 20px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 38px; transition: 0.3s; }
-        .btn-add-custom { background: var(--secondary); color: #fff; border: none; padding: 0 12px; border-radius: 4px; cursor: pointer; height: 38px; font-size: 12px; }
-
-        .table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; position: relative; z-index: 15; background: #fff; margin-bottom: 10px; }
-        .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1000px; }
+        /* 表格区：首列锁定（核心适配） */
+        .table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 4px; position: relative; z-index: 15; background: #fff; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .compare-table th, .compare-table td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: center; font-size: 13px; white-space: nowrap; }
-        .label-col { width: 170px; min-width: 170px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        
+        /* 手机端首列固定 */
+        .label-col { width: 120px; min-width: 120px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+
         .header-row th { background: #fff; position: sticky; top: 0; z-index: 6; color: var(--primary); border-bottom: 2px solid var(--primary); }
         .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); }
         
-        .total-val { font-size: 17px; font-weight: 800; color: var(--primary); }
+        .total-val { font-size: 16px; font-weight: 800; color: var(--primary); }
+        .crown-icon { display: none; font-size: 16px; }
         .is-winner .total-val { color: var(--gold); }
-        .crown-icon { display: none; font-size: 18px; margin-bottom: 2px; }
         .is-winner .crown-icon { display: block; }
-        .del-btn { display: block; margin-top: 4px; font-size: 11px; color: #999; cursor: pointer; border: 1px solid #ddd; padding: 1px 6px; border-radius: 10px; width: fit-content; margin: 4px auto 0 auto; }
 
+        /* 隐藏打印专用元素 */
         @media print {
             @page { size: A4 landscape; margin: 0.3cm; }
-            .input-panel, .del-btn, .action-btns button:not(.print-keep), .rule-btn, .top-nav-container a, .btn-add-custom, .custom-items-wrapper { display: none !important; }
-            .rule-body.print-active { display: block !important; border: 1px solid #ffe58f; margin-bottom: 10px; padding: 6px; font-size: 10px !important; }
-            .compare-table { width: 100% !important; min-width: 0 !important; }
-            .compare-table th, .compare-table td { padding: 3px 1px !important; font-size: 10px !important; }
-            .label-col { position: static !important; width: 130px !important; min-width: 130px !important; }
+            .input-panel, .del-btn, .rule-btn, .top-nav-container a { display: none !important; }
+            .rule-body.print-active { display: block !important; border: 1px solid #ffe58f; font-size: 10px; }
+            .label-col { position: static !important; }
         }
     </style>
 </head>
@@ -77,79 +71,72 @@
     <div class="watermark-overlay" id="watermark"></div>
 
     <div class="header-area">
-        <div><p class="main-title">新人收入目标测算看板</p><p class="sub-title">版权归PA福小昊 - 2026版基本法 (高精测算版)</p></div>
-        <div class="action-btns">
-            <button class="btn-calc" style="background:var(--danger); height:34px; font-size:12px;" onclick="clearAllData()">清空记录</button>
-            <button class="btn-calc" style="background:#52c41a; height:34px; font-size:12px;" onclick="exportExcel()">导出 Excel</button>
-            <button class="btn-calc" style="background:var(--secondary); height:34px; font-size:12px; margin-left:5px;" onclick="smartPrint()">打印 A4</button>
+        <p class="main-title">新人收入目标测算看板</p>
+        <p class="sub-title">版权归PA福小昊 - 2026版 (移动自适应版)</p>
+        <div style="width: 100%; display: flex; gap: 5px; margin-top: 5px;">
+            <button onclick="clearAllData()" style="flex:1; background:var(--danger); border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">清空</button>
+            <button onclick="exportExcel()" style="flex:1; background:#52c41a; border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">导出</button>
+            <button onclick="smartPrint()" style="flex:1; background:var(--secondary); border:none; color:#fff; border-radius:4px; padding:6px; font-size:12px;">打印</button>
         </div>
     </div>
 
     <div class="top-nav-container">
-        <div class="btn-link rule-btn" onclick="toggleRule()">训练津贴发放条件 [点击展开原文]</div>
-        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049d026fe.jpg" target="_blank" class="btn-link">首次钻方案 ↗</a>
-        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049ece8ab.jpg" target="_blank" class="btn-link">新人一桌宴方案 ↗</a>
+        <div class="btn-link rule-btn" onclick="toggleRule()">训练津贴规则原文</div>
+        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049d026fe.jpg" target="_blank" class="btn-link">首次钻方案</a>
+        <a href="https://free-img.400040.xyz/4/2026/02/01/697f049ece8ab.jpg" target="_blank" class="btn-link">一桌宴方案</a>
     </div>
 
     <div class="rule-body" id="ruleBody">
         <div class="rule-columns">
             <div class="rule-col">
-                <div class="rule-title-sm">第 1-12 期训练津贴发放条件</div>
-                <div>（一）新人优++、优+、FNA 训练津贴发放条件：</div>
-                <div class="indent-1">1．当月参会率≥75%；</div>
-                <div class="indent-1">2．截至当月已完成相关培训并达标：</div>
-                <div class="indent-2">（1）当月飞鹰培训合格（入司第 2 月考察）；</div>
-                <div class="indent-2">（2）当月新锐培训合格（入司第 4 月考察）；</div>
-                <div class="indent-2">（3）当月新人集训培训合格（入司第 5-12 月考察，仅限优+、优++）。</div>
-                <div class="indent-1">3．截至当月已转正（自入司第 4 月起考察）</div>
+                <strong>第 1-12 期训练津贴发放条件</strong><br>
+                1．当月参会率≥75%； 2．培训达标：飞鹰、新锐、新人集训合格； 3．第4月起需转正。
             </div>
             <div class="rule-col">
-                <div class="rule-title-sm">第 13-18 期训练津贴发放条件</div>
-                <div>（一）当月参会率≥75%；</div>
-                <div>（二）新契约在职单第 13 月保费继续率≥80%。</div>
+                <strong>第 13-18 期训练津贴发放条件</strong><br>
+                （一）当月参会率≥75%；（二）继续率≥80%。
             </div>
         </div>
     </div>
 
     <div class="input-panel">
         <div class="input-group"><label>人员职级</label><select id="rank"><option value="P0">P0</option><option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option><option value="P4">P4</option><option value="P5">P5</option><option value="P6">P6</option><option value="P7">P7</option><option value="P8">P8</option><option value="P9">P9</option></select></div>
-        <div class="input-group"><label>人员标签</label><select id="tag" onchange="initPeriodOptions()"><option value="优++">优++新人</option><option value="优+" selected>优+新人</option><option value="FNA">FNA新人</option><option value="NA">NA新人</option></select></div>
-        <div class="input-group"><label>训津期数</label><select id="period"></select></div>
-        <div class="input-group"><label>个人月FYC</label><input type="number" id="fyc" value="3000"></div>
+        <div class="input-group"><label>标签</label><select id="tag" onchange="initPeriodOptions()"><option value="优++">优++</option><option value="优+" selected>优+</option><option value="FNA">FNA</option><option value="NA">NA</option></select></div>
+        <div class="input-group"><label>期数</label><select id="period"></select></div>
+        <div class="input-group"><label>个人FYC</label><input type="number" id="fyc" value="3000"></div>
         <div class="input-group"><label>是否有增员？</label><select id="hasReferral" onchange="updateReferralInputs()"><option value="否">否</option><option value="是">是</option></select></div>
         
         <div id="referralInputs">
-            <div class="ref-item"><label>推荐新人入司月数</label><select id="referralMonths"><option value="1-12">1-12 月</option><option value="13-24">13-24 月</option></select></div>
-            <div class="ref-item"><label>推荐新人当月FYC</label><input type="number" id="referralFycInput" value="3000"></div>
-            <div class="ref-item"><label>第13个月继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
+            <div class="ref-item"><label>推荐月数</label><select id="referralMonths"><option value="1-12">1-12月</option><option value="13-24">13-24月</option></select></div>
+            <div class="ref-item"><label>推荐FYC</label><input type="number" id="referralFycInput" value="3000"></div>
+            <div class="ref-item"><label>继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
         </div>
         
-        <div style="width: 100%; border-top: 1px solid #eee; margin: 8px 0; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; gap: 12px; align-items: flex-end;">
-                <div class="input-group" style="flex: 2;"><label>手动添加福利项目 (价值列入总计)</label><input type="text" id="customName" placeholder="项目名称"></div>
-                <div class="input-group" style="flex: 1;"><label>价值 (元)</label><input type="number" id="customAmount" placeholder="0"></div>
-                <button class="btn-add-custom" onclick="addCustomItem()">＋ 暂存该福利</button>
+        <div style="width: 100%; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="customName" placeholder="福利项目" style="flex:2;">
+                <input type="number" id="customAmount" placeholder="价值" style="flex:1;">
+                <button onclick="addCustomItem()" style="background:var(--secondary); color:#fff; border:none; border-radius:4px; padding:0 10px;">＋</button>
             </div>
             <div class="history-tags" id="historyTags"></div>
         </div>
-        <div class="custom-items-wrapper" id="customItemsList"></div>
-        <button class="btn-calc" style="width: 100%; margin-top: 8px;" onclick="addScheme()">生成并加入对比方案</button>
+        <button class="btn-calc" onclick="addScheme()">生成方案并对比</button>
     </div>
 
     <div class="table-wrapper">
         <table class="compare-table" id="resTable">
-            <thead><tr class="header-row" id="hRow"><th class="label-col">测算对比维度</th></tr></thead>
+            <thead><tr class="header-row" id="hRow"><th class="label-col">测算维度</th></tr></thead>
             <tbody id="bBody">
-                <tr class="cat-row"><td class="label-col">人员信息</td></tr>
+                <tr class="cat-row"><td class="label-col">基本信息</td></tr>
                 <tr data-k="rank"><td class="label-col">测算职级</td></tr>
                 <tr data-k="tag"><td class="label-col">标签/期数</td></tr>
-                <tr class="cat-row"><td class="label-col">直接收益项目</td></tr>
+                <tr class="cat-row"><td class="label-col">收益项目</td></tr>
                 <tr data-k="fyc"><td class="label-col">佣金 (FYC)</td></tr>
-                <tr data-k="sales"><td class="label-col">销售津贴 (系数C)</td></tr>
-                <tr data-k="subsidy"><td class="label-col">训练津贴 (实发)</td></tr>
-                <tr data-k="defer"><td class="label-col">训练津贴递延</td></tr>
+                <tr data-k="sales"><td class="label-col">销售津贴</td></tr>
+                <tr data-k="subsidy"><td class="label-col">训津 (实发)</td></tr>
+                <tr data-k="defer"><td class="label-col">训津递延</td></tr>
                 <tr data-k="ref_total"><td class="label-col">增员奖</td></tr>
-                <tr class="cat-row"><td class="label-col">其他福利项</td></tr>
+                <tr class="cat-row"><td class="label-col">其他福利</td></tr>
                 <tr class="total-row" data-k="total" style="background:#fff9f9"><td class="label-col">预计总利益</td></tr>
             </tbody>
         </table>
@@ -157,22 +144,15 @@
 </div>
 
 <script>
-    let currentCustomItems = [];
-    let schemes = [];
-    let sIdx = 1;
-    let welfareHistory = [];
+    let currentCustomItems = [], schemes = [], welfareHistory = [], sIdx = 1;
 
-    function saveData() { 
-        localStorage.setItem('fyc_v7', JSON.stringify(schemes)); 
-        localStorage.setItem('fyc_idx_v7', sIdx); 
-        localStorage.setItem('fyc_wHistory_v7', JSON.stringify(welfareHistory));
-    }
+    function saveData() { localStorage.setItem('fyc_m', JSON.stringify(schemes)); localStorage.setItem('fyc_idx_m', sIdx); localStorage.setItem('fyc_hist_m', JSON.stringify(welfareHistory)); }
     function loadData() {
-        const saved = localStorage.getItem('fyc_v7'), sHist = localStorage.getItem('fyc_wHistory_v7');
-        if (saved) { schemes = JSON.parse(saved); sIdx = parseInt(localStorage.getItem('fyc_idx_v7')) || 1; rebuildTable(); }
-        if (sHist) { welfareHistory = JSON.parse(sHist); renderHistoryTags(); }
+        const saved = localStorage.getItem('fyc_m'), savedH = localStorage.getItem('fyc_hist_m');
+        if (saved) { schemes = JSON.parse(saved); sIdx = parseInt(localStorage.getItem('fyc_idx_m')) || 1; rebuildTable(); }
+        if (savedH) { welfareHistory = JSON.parse(savedH); renderHistoryTags(); }
     }
-    function clearAllData() { if(confirm("确定彻底清空所有记录吗？")) { localStorage.clear(); location.reload(); } }
+    function clearAllData() { if(confirm("清空记录？")) { localStorage.clear(); location.reload(); } }
 
     function rebuildTable() {
         const hRow = document.getElementById('hRow'), bBody = document.getElementById('bBody');
@@ -181,21 +161,20 @@
         Array.from(bBody.querySelectorAll('tr[data-custom-row]')).forEach(r => r.remove());
 
         const allNames = [...new Set(schemes.flatMap(s => s.customItems.map(i => i.name)))];
-        const otherCat = Array.from(bBody.rows).find(r => r.innerText.includes('其他福利项'));
+        const otherCat = Array.from(bBody.rows).find(r => r.innerText.includes('其他福利'));
         allNames.forEach(name => {
             const tr = document.createElement('tr'); tr.setAttribute('data-custom-row', name);
             tr.innerHTML = `<td class="label-col">${name}</td>`; otherCat.after(tr);
         });
 
         schemes.forEach(s => {
-            const th = document.createElement('th'); th.id = s.id + '-h';
-            th.innerHTML = `方案 ${s.displayIdx}<br><span class="del-btn" onclick="removeCol('${s.id}')">移除</span>`;
+            const th = document.createElement('th'); th.innerHTML = `方${s.displayIdx}<br><span onclick="removeCol('${s.id}')" style="font-size:10px; color:red;">移除</span>`;
             hRow.appendChild(th);
             Array.from(bBody.rows).forEach(row => {
                 const k = row.getAttribute('data-k'), cName = row.getAttribute('data-custom-row'), td = document.createElement('td');
                 td.className = s.id + '-c' + (k==='total'?' win-cell':'');
                 if(k) td.innerHTML = s.dataMap[k] || '—';
-                else if(cName) { const match = s.customItems.find(i => i.name === cName); td.innerHTML = match ? `¥${match.amount.toLocaleString()}` : '—'; }
+                else if(cName) { const match = s.customItems.find(i => i.name === cName); td.innerHTML = match ? `¥${match.amount}` : '—'; }
                 row.appendChild(td);
             });
         });
@@ -203,30 +182,22 @@
     }
 
     function addCustomItem() {
-        const name = document.getElementById('customName').value.trim();
-        const amount = parseFloat(document.getElementById('customAmount').value);
+        const name = document.getElementById('customName').value.trim(), amount = parseFloat(document.getElementById('customAmount').value);
         if (name && !isNaN(amount)) {
             currentCustomItems.push({ name, amount });
             if (!welfareHistory.includes(name)) welfareHistory.push(name);
-            renderCustomTags(); renderHistoryTags();
             document.getElementById('customName').value = ''; document.getElementById('customAmount').value = '';
+            renderHistoryTags();
+            alert("福利项目暂存成功，点击下方按钮生成方案即可看到！");
         }
     }
 
-    function renderCustomTags() {
-        document.getElementById('customItemsList').innerHTML = currentCustomItems.map((item, index) => `
-            <div class="custom-item-tag">${item.name}: ¥${item.amount}<span onclick="currentCustomItems.splice(${index},1);renderCustomTags();" style="cursor:pointer;color:red;margin-left:5px;">×</span></div>
-        `).join('');
-    }
-
     function renderHistoryTags() {
-        document.getElementById('historyTags').innerHTML = welfareHistory.map(name => `
-            <div class="history-tag" onclick="document.getElementById('customName').value='${name}'">${name}</div>
-        `).join('');
+        document.getElementById('historyTags').innerHTML = welfareHistory.map(name => `<div class="history-tag" onclick="document.getElementById('customName').value='${name}'">${name}</div>`).join('');
     }
 
     const salesMatrix = { 'P0':[0,0,0,0,0,0,0,0],'P1':[0,0,0,0,0,0,0,0],'P2':[0,0.04,0.09,0.13,0.13,0.13,0.13,0.13],'P3':[0,0.06,0.11,0.15,0.18,0.18,0.18,0.18],'P4':[0,0.06,0.25,0.30,0.35,0.35,0.35,0.35],'P5':[0,0.06,0.27,0.32,0.37,0.42,0.42,0.42],'P6':[0,0.06,0.30,0.34,0.40,0.45,0.47,0.47],'P7':[0,0.06,0.32,0.37,0.42,0.50,0.52,0.55],'P8':[0,0.06,0.32,0.37,0.45,0.52,0.55,0.57],'P9':[0,0.06,0.32,0.37,0.45,0.55,0.57,0.60] };
-    function getSubsidy(fyc, tag, period) { let val=0, def=0; if(tag==='优++') { let i=[3000,6000,10000,20000,30000,60000].findIndex(v=>fyc<v); i=i===-1?5:Math.max(0,i-1); if(fyc>=3000){ val=(period==='13-18')?[1800,5400,8000,16000,20000,30000][i]:[3600,6000,10000,20000,30000,60000][i]; def=f>=10000?[0,0,0.3,0.4,0.5,0.6][i]:0; } } else { let i=[600,1500,3000,6000,10000,20000,30000].findIndex(v=>fyc<v); i=i===-1?6:Math.max(0,i-1); if(period==='1-3') val=tag==='优+'?[1000,2400,3600,4400,5400,8500,11500][i]:(tag==='FNA'?[1000,1800,2400,3000,3800,6000,8000][i]:[600,1100,1400,1400,1400,1400,1400][i]); else if(period==='4-12'&&tag!=='NA') val=tag==='优+'?[1000,1600,2700,4400,5400,8500,11500][i]:[1000,1300,1800,2400,3300,5500,7500][i]; else if(period==='13-18'&&tag==='优+') val=[0,0,1400,2700,3600,5800,8100][i]; } return { cash: val*(1-def), defer: val*def }; }
+    function getSubsidy(f, t, p) { let val=0, def=0; if(t==='优++') { let i=[3000,6000,10000,20000,30000,60000].findIndex(v=>f<v); i=i===-1?5:Math.max(0,i-1); if(f>=3000){ val=(p==='13-18')?[1800,5400,8000,16000,20000,30000][i]:[3600,6000,10000,20000,30000,60000][i]; def=f>=10000?[0,0,0.3,0.4,0.5,0.6][i]:0; } } else { let i=[600,1500,3000,6000,10000,20000,30000].findIndex(v=>f<v); i=i===-1?6:Math.max(0,i-1); if(p==='1-3') val=t==='优+'?[1000,2400,3600,4400,5400,8500,11500][i]:(t==='FNA'?[1000,1800,2400,3000,3800,6000,8000][i]:[600,1100,1400,1400,1400,1400,1400][i]); else if(p==='4-12'&&t!=='NA') val=t==='优+'?[1000,1600,2700,4400,5400,8500,11500][i]:[1000,1300,1800,2400,3300,5500,7500][i]; else if(p==='13-18'&&t==='优+') val=[0,0,1400,2700,3600,5800,8100][i]; } return { cash: val*(1-def), defer: val*def }; }
 
     function addScheme() {
         const f = parseFloat(document.getElementById('fyc').value)||0, r = document.getElementById('rank').value, t = document.getElementById('tag').value, p = document.getElementById('period').value;
@@ -238,24 +209,19 @@
             ref=rf*c1*((rm==='13-24'&&rc==='80%以下')?0:1);
         }
         const total = f+sales+sub.cash+sub.defer+ref+currentCustomItems.reduce((s,i)=>s+i.amount, 0);
-        const dataMap = { rank:r, tag:`${t}(${p})期`, fyc:`¥${f.toLocaleString()}`, sales:`¥${sales.toLocaleString()} (${(rate*100).toFixed(0)}%)`, subsidy:`¥${sub.cash.toLocaleString()}`, defer:`¥${sub.defer.toLocaleString()}`, ref_total:`¥${ref.toLocaleString()}`, total:`<div class="crown-icon">👑</div><span class="total-val">¥${total.toLocaleString()}</span>` };
+        const dataMap = { rank:r, tag:`${t}(${p})`, fyc:`¥${f.toLocaleString()}`, sales:`¥${sales.toLocaleString()}`, subsidy:`¥${sub.cash.toLocaleString()}`, defer:`¥${sub.defer.toLocaleString()}`, ref_total:`¥${ref.toLocaleString()}`, total:`<div class="crown-icon">👑</div><span class="total-val">¥${total.toLocaleString()}</span>` };
         schemes.push({ id:'s'+Date.now(), total, displayIdx: sIdx++, customItems: [...currentCustomItems], dataMap });
-        saveData(); rebuildTable(); currentCustomItems = []; renderCustomTags();
+        saveData(); rebuildTable(); currentCustomItems = [];
     }
 
     function removeCol(id) { schemes = schemes.filter(x => x.id !== id); saveData(); rebuildTable(); }
-    function updateWin() {
-        if(!schemes.length) return;
-        const max = Math.max(...schemes.map(s => s.total));
-        schemes.forEach(s => { const el = document.querySelector('.' + s.id + '-c.win-cell'); if (el) el.classList.toggle('is-winner', s.total === max && max > 0); });
-    }
-
+    function updateWin() { if(!schemes.length) return; const max = Math.max(...schemes.map(s => s.total)); schemes.forEach(s => { const el = document.querySelector('.' + s.id + '-c.win-cell'); if (el) el.classList.toggle('is-winner', s.total === max && max > 0); }); }
     function toggleRule() { const b = document.getElementById('ruleBody'); b.style.display = (b.style.display==='block'?'none':'block'); b.classList.toggle('print-active'); }
     function initPeriodOptions() { const t = document.getElementById('tag').value, p = document.getElementById('period'); p.innerHTML = ''; let opts = t==='优++' ? [['4-12期','4-12'],['13-18期','13-18']] : [['1-3期','1-3'],['4-12期','4-12'],['13-18期','13-18']]; opts.forEach(o => p.add(new Option(o[0], o[1]))); }
     function updateReferralInputs() { document.getElementById('referralInputs').style.display = (document.getElementById('hasReferral').value==='是'?'flex':'none'); }
-    function smartPrint() { const t = document.getElementById('resTable'); const A4 = 1080; if(t.offsetWidth > A4) document.body.style.zoom = (A4 / t.offsetWidth).toFixed(2); window.print(); setTimeout(()=>document.body.style.zoom=1,500); }
-    function exportExcel() { const t = document.getElementById('resTable').cloneNode(true); t.querySelectorAll('.del-btn, .crown-icon').forEach(e => e.remove()); XLSX.writeFile(XLSX.utils.table_to_book(t), '新人测算报告.xlsx'); }
-    window.onload = () => { initPeriodOptions(); loadData(); const c = document.createElement('canvas'); c.width=400; c.height=300; const ctx = c.getContext('2d'); ctx.rotate(-0.4); ctx.font='bold 22px Arial'; ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillText('版权归PA福小昊', 50, 150); document.getElementById('watermark').style.backgroundImage = `url(${c.toDataURL()})`; }
+    function smartPrint() { const t = document.getElementById('resTable'); document.body.style.zoom = (t.offsetWidth > 1000) ? (1000 / t.offsetWidth).toFixed(2) : 1; window.print(); setTimeout(()=>document.body.style.zoom=1,500); }
+    function exportExcel() { const t = document.getElementById('resTable').cloneNode(true); t.querySelectorAll('.del-btn, .crown-icon').forEach(e => e.remove()); XLSX.writeFile(XLSX.utils.table_to_book(t), '新人报告.xlsx'); }
+    window.onload = () => { initPeriodOptions(); loadData(); const c = document.createElement('canvas'); c.width=200; c.height=150; const ctx = c.getContext('2d'); ctx.rotate(-0.4); ctx.font='14px Arial'; ctx.fillStyle='rgba(0,0,0,0.1)'; ctx.fillText('PA福小昊', 20, 80); document.getElementById('watermark').style.backgroundImage = `url(${c.toDataURL()})`; }
 </script>
 </body>
 </html>
