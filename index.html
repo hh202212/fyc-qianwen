@@ -19,14 +19,13 @@
         .top-nav-container { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 5px; position: relative; z-index: 20; }
         .btn-link { color: #856404; background: var(--tip-bg); border: 1px solid #ffe58f; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
         
-        /* 规则区：锁定原文排版 */
         .rule-body { display: none; background: var(--tip-bg); border: 1px solid #ffe58f; border-top: none; padding: 12px; border-radius: 0 0 4px 4px; margin-top: -8px; margin-bottom: 15px; position: relative; z-index: 19; }
         .rule-columns { display: flex; gap: 20px; flex-wrap: wrap; }
         .rule-col { flex: 1; min-width: 280px; font-size: 11px; color: #856404; line-height: 1.7; }
         .indent-1 { padding-left: 12px; margin-bottom: 4px; }
         .indent-2 { padding-left: 24px; margin-bottom: 2px; }
 
-        .input-panel { display: flex; flex-wrap: wrap; gap: 8px; background: var(--gray); padding: 12px; border-radius: 6px; margin-bottom: 15px; position: relative; z-index: 20; }
+        .input-panel { display: flex; flex-wrap: wrap; gap: 8px; background: var(--gray); padding: 12px; border-radius: 6px; margin-bottom: 15px; position: relative; z-index: 20; align-items: flex-end; }
         .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 45%; }
         @media (max-width: 400px) { .input-group { min-width: 100%; } }
         
@@ -35,13 +34,8 @@
 
         #referralInputs { width: 100%; display: none; flex-wrap: wrap; gap: 8px; margin-top: 5px; border-top: 1px dashed #ccc; padding-top: 8px; }
 
-        /* 福利快捷区美化 */
         .history-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .history-tag { 
-            background: #fff; border: 1px solid #d9d9d9; padding: 4px 10px; border-radius: 15px; 
-            font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
+        .history-tag { background: #fff; border: 1px solid #d9d9d9; padding: 4px 10px; border-radius: 15px; font-size: 12px; cursor: pointer; color: #555; display: flex; align-items: center; gap: 5px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .tag-close { color: #999; font-size: 14px; padding: 0 2px; }
 
         .btn-calc { background: var(--primary); color: #fff; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; margin-top: 8px; }
@@ -51,13 +45,10 @@
         .compare-table th, .compare-table td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 5px; text-align: center; white-space: nowrap; }
         
         .label-col { width: 105px; min-width: 105px !important; background: #f9f9f9 !important; text-align: left !important; font-weight: bold; font-size: 11px; position: sticky; left: 0; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
-        
         .scheme-header { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 80px; }
         .scheme-title { font-size: 12px; font-weight: bold; color: var(--primary); }
 
         .cat-row { background: #fff1f0 !important; font-weight: bold; color: var(--primary); font-size: 11px; }
-        
-        /* 皇冠图标与总计样式 */
         .total-cell-content { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .total-val { font-size: 13px; font-weight: 800; color: var(--primary); }
         .crown-icon { font-size: 14px; height: 14px; display: none; }
@@ -88,6 +79,7 @@
         <div class="btn-link" onclick="toggleRule()">训练津贴规则</div>
         <a href="https://free-img.400040.xyz/4/2026/02/01/697f049d026fe.jpg" target="_blank" class="btn-link">首次钻方案</a>
         <a href="https://free-img.400040.xyz/4/2026/02/01/697f049ece8ab.jpg" target="_blank" class="btn-link">一桌宴方案</a>
+        <div class="btn-link" onclick="checkAuthLink('https://free-img.400040.xyz/4/2026/02/07/6986b7b003056.png')">基本法训练津贴规定 🔒</div>
     </div>
 
     <div class="rule-body" id="ruleBody">
@@ -120,7 +112,7 @@
         <div id="referralInputs">
             <div class="input-group"><label>推荐月数</label><select id="referralMonths"><option value="1-12">1-12月</option><option value="13-24">13-24月</option></select></div>
             <div class="input-group"><label>推荐人FYC</label><input type="number" id="referralFycInput" value="3000"></div>
-            <div class="input-group"><label>继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
+            <div class="input-group"><label>推荐人继续率</label><select id="referralContinuation"><option value="80%以下">80%以下</option><option value="80%以上" selected>80%及以上</option></select></div>
         </div>
         
         <div style="width: 100%; border-top: 1px dashed #ccc; margin-top: 5px; padding-top: 8px;">
@@ -157,17 +149,28 @@
 <script>
     let currentCustomItems = [], schemes = [], welfareHistory = [], sIdx = 1;
 
+    // 加密访问函数
+    function checkAuthLink(targetUrl) {
+        const correctPass = "8888"; // 默认暗号
+        const userPass = prompt("请输入查看暗号：");
+        if (userPass === correctPass) {
+            window.open(targetUrl, '_blank');
+        } else if (userPass !== null) {
+            alert("暗号不正确！");
+        }
+    }
+
     function saveData() { 
-        localStorage.setItem('fyc_v10', JSON.stringify(schemes)); 
-        localStorage.setItem('fyc_idx_v10', sIdx); 
-        localStorage.setItem('fyc_wHist_v10', JSON.stringify(welfareHistory)); 
+        localStorage.setItem('fyc_v11', JSON.stringify(schemes)); 
+        localStorage.setItem('fyc_idx_v11', sIdx); 
+        localStorage.setItem('fyc_wHist_v11', JSON.stringify(welfareHistory)); 
     }
     function loadData() {
-        const s = localStorage.getItem('fyc_v10'), h = localStorage.getItem('fyc_wHist_v10');
-        if (s) { schemes = JSON.parse(s); sIdx = parseInt(localStorage.getItem('fyc_idx_v10')) || 1; rebuildTable(); }
+        const s = localStorage.getItem('fyc_v11'), h = localStorage.getItem('fyc_wHist_v11');
+        if (s) { schemes = JSON.parse(s); sIdx = parseInt(localStorage.getItem('fyc_idx_v11')) || 1; rebuildTable(); }
         if (h) { welfareHistory = JSON.parse(h); renderHistoryTags(); }
     }
-    function clearAllData() { if(confirm("确定清空记录？")) { localStorage.clear(); location.reload(); } }
+    function clearAllData() { if(confirm("清空全部记录？")) { localStorage.clear(); location.reload(); } }
 
     function rebuildTable() {
         const hRow = document.getElementById('hRow'), bBody = document.getElementById('bBody');
@@ -229,7 +232,7 @@
 
     function addScheme() {
         const f = parseFloat(document.getElementById('fyc').value)||0, r = document.getElementById('rank').value, t = document.getElementById('tag').value, p = document.getElementById('period').value;
-        const rate = (salesMatrix[r]||salesMatrix['P0'])[f<1500?0:f<3000?1:f<6000?2:f<10000?3:f<20000?4:f<30000?5:f<60000?6:7];
+        const rates = salesMatrix[r]||salesMatrix['P0'], rate = f<1500?rates[0]:f<3000?rates[1]:f<6000?rates[2]:f<10000?rates[3]:f<20000?rates[4]:f<30000?rates[5]:f<60000?rates[6]:rates[7];
         const sales = f * rate, sub = getSubsidy(f, t, p);
         let ref = 0; if(document.getElementById('hasReferral').value==='是'){ 
             const rf=parseFloat(document.getElementById('referralFycInput').value)||0, rm=document.getElementById('referralMonths').value, rc=document.getElementById('referralContinuation').value;
